@@ -127,6 +127,9 @@ class MultiClassF1Score(nn.Module):
             return f'F1 socre class={self.single_calss_id[1]}'
         return f'F1 socre num_classes={self.num_classes}, reduction={self.reduction}'
     
+    @property
+    def __name__(self):
+        return self.extra_repr()
 
 class MultiClassPrecision(nn.Module):
     def __init__(self, num_classes, epsilon=1e-7, reduction='mean', single_calss_id: tuple[int, str]=None):
@@ -163,7 +166,11 @@ class MultiClassPrecision(nn.Module):
         if self.single_calss_id is not None:
             return f'Precision class={self.single_calss_id[1]}'
         return f'Precision num_classes={self.num_classes}, reduction={self.reduction}'
-
+    
+    @property
+    def __name__(self):
+        return self.extra_repr()
+    
 class MultiClassRecall(nn.Module):
     def __init__(self, num_classes, epsilon=1e-7, reduction='mean', single_calss_id: tuple[int, str]=None):
         super().__init__()
@@ -199,3 +206,7 @@ class MultiClassRecall(nn.Module):
         if self.single_calss_id is not None:
             return f'Recall class={self.single_calss_id[1]}'
         return f'num_classes={self.num_classes}, reduction={self.reduction}'
+    
+    @property
+    def __name__(self):
+        return self.extra_repr()

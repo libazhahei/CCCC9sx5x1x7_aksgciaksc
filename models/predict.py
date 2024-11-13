@@ -12,7 +12,7 @@ import pandas as pd
 def main(args):
     coco = COCO(f"{args.data_dir}/annotations.json")
     _, _, test_ids = seprate_train_val_test(coco, test_size=0.2, val_size=0.2, random_state=42)
-    test_dataset = TurtlesDataset(coco, test_ids, resize=(args.size, args.size))
+    test_dataset = TurtlesDataset(coco, test_ids, resize=(args.size, args.size), dataset_path=args.data_dir)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
     selector = ModelSelector(args.num_classes, pretrained=True)
     model, get_predition = selector.select_model(args.model_name, checkpoint_path=args.checkpoint)
@@ -50,6 +50,7 @@ def main(args):
         verbose=True,
         get_prediction=get_predition,
     )
+    print("Start Testing")
     test_logs = test_epoch.run(test_loader)
     for key, value in test_logs.items():
         print(f"{key}: {value}")
@@ -58,12 +59,12 @@ def main(args):
     pass 
 if __name__ == "__main__":
     arg = argparse.ArgumentParser()
-    arg.add_argument("--data_dir", type=str, default="data")
+    arg.add_argument("--data_dir", type=str, default="/content/dataset/turtles-data/data")
     arg.add_argument("--model_dir", type=str, default="models")
     arg.add_argument("--model_name", type=str, required=True)
     arg.add_argument("--size", type=int, default=1024)
     arg.add_argument("--model_version", type=int, default=-1)
-    arg.add_argument("--batch_size", type=int, default=8)
+    arg.add_argument("--batch_size", type=int, default=4)
     arg.add_argument("--num_classes", type=int, default=4)
     arg.add_argument("--checkpoint", type=str, default=None)
     arg.add_argument("--alpha", type=float, default=0.2)
@@ -73,11 +74,11 @@ if __name__ == "__main__":
     args = arg.parse_args()
     if not os.path.exists(args.data_dir):
         raise ValueError(f"Data directory {args.data_dir} does not exist")
-    if not os.path.exists(args.model_dir):
+    if not os.path.exists(args.model_dir) and args.checkpoint is None:
         raise ValueError(f"Model directory {args.model_dir} does not exist")
-    if args.model_version == -1:
+    if args.checkpoint is None and args.model_version == -1:
         args.model_version = len(os.listdir(args.model_dir))
-    if not os.path.exists(f"{args.model_dir}/{args.model_version}"):
+    if args.checkpoint is None and not os.path.exists(f"{args.model_dir}/{args.model_version}"):
         raise ValueError(f"Model version {args.model_version} does not exist")
     if args.checkpoint is None:
         args.checkpoint = f"{args.model_dir}/{args.model_version}/{args.model_name}_best_model.pth"
