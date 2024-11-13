@@ -26,7 +26,7 @@ class ModelSelector:
         if "deeplabv3" in model_name:
             return self._load_deeplab_models(model_name, checkpoint_path), lambda x: x
         elif "maskrcnn" in model_name:
-            return self._load_maskrcnn(model_name, checkpoint_path), maskrcnn_prediction
+            return self._load_maskrcnn(model_name, checkpoint_path), lambda x: x
         elif "unet" in model_name:
             return self._load_unet(model_name, checkpoint_path), lambda x: x
         pass 
@@ -44,18 +44,14 @@ class ModelSelector:
             else:
                 return torch.load(checkpoint_path)
         elif "sp" in model_name:
-            # from deeplab.dl_sp import get_model
-            module = importlib.import_module("deeplab.dl_sp")
-            cls = getattr(module, "get_model")
-            return cls(checkpoint_path, self.num_classes)
+            from networks.deeplab.dl_sp import CustomizedDeeplabv3plus, get_model
+            return get_model(checkpoint_path, self.num_classes)
         elif "mrb" in model_name:
-            module = importlib.import_module("deeplab.dl_sp")
-            cls = getattr(module, "get_model")
-            return cls(checkpoint_path, self.num_classes)
+            from networks.deeplab.dl_mrb import CustomizedDeeplabv3plus, get_model
+            return get_model(checkpoint_path, self.num_classes)
         elif "all" in model_name:
-            module = importlib.import_module("deeplab.dl_sp")
-            cls = getattr(module, "get_model")
-            return cls(checkpoint_path, self.num_classes)
+            from networks.deeplab.dl_all import CustomizedDeeplabv3plus, get_model
+            return get_model(checkpoint_path, self.num_classes)
         else:
             raise ValueError(f"Model {model_name} not found in the list of available models")
         # return get_model(checkpoint_path, self.num_classes)
@@ -72,36 +68,14 @@ class ModelSelector:
         return model
     
     def _load_unet(self, model_name: str, checkpoint_path: str):
-        pass
+        from .unet.attention import get_unet, get_r2unet, get_attunet, get_r2attunet
+        if "unet" in model_name:
+            return get_unet(checkpoint_path, self.num_classes)
+        elif "attention" in model_name:
+            return get_attunet(checkpoint_path, self.num_classes)
+        elif "res_unet++" in model_name:
+            return get_r2attunet(checkpoint_path, self.num_classes)
 
-def maskrcnn_prediction(pred: torch.Tensor)-> torch.Tensor:
-    pred_masks = {1: [], 2: [], 3: []}
-    target_masks = {1: [], 2: [], 3: []}
-    # category_labels_rev = {
-    #     1: "turtle",
-    #     2: "flipper",
-    #     3: "head",
-    # }
-
-    for i, label in enumerate(pred['labels']):
-        cat = label.item()
-        if cat in pred_masks:
-            pred_masks[cat].append(pred['masks'][i] > 0.5)
-    
-
-    for cat, masks in pred_masks.items():
-        if masks:
-            pred_masks[cat] = torch.stack(masks).any(dim=0).float()
-        else:
-            pred_masks[cat] = torch.zeros_like(pred['masks'][0], dtype=torch.float32)
-
-    # for cat, masks in target_masks.items():
-    #     if masks:
-    #         target_masks[cat] = torch.stack(masks).any(dim=0).float()
-    #     else:
-    #         target_masks[cat] = torch.zeros_like(pred['masks'][0], dtype=torch.float32)
-
-    return pred_masks, target_masks
 
 def import_necessary(model_name):
     if "deeplabv3" in model_name:

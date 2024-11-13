@@ -39,3 +39,10 @@ def visualize_image_with_mask(image, mask, pred=None):
         visualize(figsize=(10, 5), original_image=image, mask=mask)
     else:
         visualize(figsize=(10, 5), original_image=image, true_mask=mask, pred_mask=pred)
+
+def store_image_with_mask(image, mask, pred, path, model_name, img_id):
+    image = image.permute(1, 2, 0).cpu().numpy().astype(np.float32)
+    image = (image - image.min()) / (image.max() - image.min())  # Normalize to [0, 1]
+    plt.imsave(f"{path}/{model_name}_image_{img_id}.jpg", image)
+    plt.imsave(f"{path}/{model_name}_mask_{img_id}.jpg", mask)
+    plt.imsave(f"{path}/{model_name}_pred_{img_id}.jpg", pred)

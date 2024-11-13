@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from utilis.preprocessing import get_test_preprocessing
 from utilis.loss import MultiClassCombinedLoss
 import pandas as pd
+
 def main(args):
     import_necessary(args.model_name)
     coco = COCO(f"{args.data_dir}/annotations.json")
@@ -60,7 +61,7 @@ def main(args):
     if args.model_version == -1:
         test_logs_df.to_csv(f"{args.model_dir}/{args.model_name}_test_metrics.csv", index=False)
     else:
-        test_logs_df.to_csv(f"{args.model_dir}/{args.model_version}/{args.model_name}_test_metrics.csv", index=False)
+        test_logs_df.to_csv(f"{args.model_dir}/{args.model_name}_{args.model_version}/{args.model_name}_test_metrics.csv", index=False)
 
     pass 
 if __name__ == "__main__":
@@ -83,11 +84,16 @@ if __name__ == "__main__":
     if not os.path.exists(args.model_dir) and args.checkpoint is None:
         raise ValueError(f"Model directory {args.model_dir} does not exist")
     if args.checkpoint is None and args.model_version == -1:
+        length = len(os.listdir(args.model_dir))
         args.model_version = len(os.listdir(args.model_dir))
-    if args.checkpoint is None and not os.path.exists(f"{args.model_dir}/{args.model_version}"):
-        raise ValueError(f"Model version {args.model_version} does not exist")
+        if os.path.exists(f"{args.model_dir}/{args.model_name}_{args.model_version}"):
+            args.checkpoint = f"{args.model_dir}/{args.model_name}_{args.model_version}/{args.model_name}_best_model.pth"
     if args.checkpoint is None:
-        args.checkpoint = f"{args.model_dir}/{args.model_version}/{args.model_name}_best_model.pth"
+        raise ValueError(f"Checkpoint for model does not exist")
+    if not os.path.exists(f"{args.model_dir}"):
+        os.makedirs(f"{args.model_dir}")
+    if args.model_version != -1 and not os.path.exists(f"{args.model_dir}/{args.model_name}_{args.model_version}"):
+        raise ValueError(f"Model version {args.model_version} does not exist")
     if not os.path.exists(args.checkpoint):
         raise ValueError(f"Checkpoint {args.checkpoint} does not exist")
     main(args)

@@ -4,6 +4,7 @@ from pycocotools.coco import COCO
 from torch.utils.data import Dataset
 from typing import Callable
 from sklearn.model_selection import train_test_split
+import pandas as pd
 class TurtlesDataset(Dataset):
     def __init__(self, coco: COCO, image_ids:list, 
                  transform: Callable[[np.ndarray, dict], dict] | None = None,
@@ -60,7 +61,22 @@ class TurtlesDataset(Dataset):
         return image, mask
 
 def seprate_train_val_test(coco: COCO, test_size: float = 0.1, val_size: float = 0.2, random_state: int = 42):
-    train_ids, test_ids = train_test_split(coco.getImgIds()[:2000], test_size=test_size, random_state=random_state)
+
+    train_ids, test_ids = train_test_split(coco.getImgIds(), test_size=test_size, random_state=random_state)
     train_ids, val_ids = train_test_split(train_ids, test_size=val_size, random_state=random_state)
     return train_ids, val_ids, test_ids
 
+def seprate_by_metadata(dataset_path):
+    meta = pd.read_csv(f"{dataset_path}/metadata.csv")
+    train_ids = []
+    val_ids = []
+    test_ids = []
+    for i in range(0,len(meta)):
+        if meta.iloc[i][0] in [3793, 7772, 8436]:
+            continue
+        if meta.iloc[i][10] == 'train':
+            train_ids.append(meta.iloc[i][0])
+        elif meta.iloc[i][10] == 'test':
+            test_ids.append(meta.iloc[i][0])
+        else:
+            val_ids.append(meta.iloc[i][0])

@@ -423,3 +423,28 @@ class R2AttU_Net(nn.Module):
         d1 = self.Conv_1x1(d2)
 
         return d1
+    
+def get_unet(checkpoint_path: str = None, num_classes: int = 4):
+    model = U_Net(output_ch=num_classes)
+    if checkpoint_path is not None:
+        model.load_state_dict(torch.load(checkpoint_path))
+    return model
+
+def get_r2unet(checkpoint_path: str = None, num_classes: int = 4):
+    model = R2U_Net(output_ch=num_classes)
+    if checkpoint_path is not None:
+        model.load_state_dict(torch.load(checkpoint_path))
+    return model
+
+def get_attunet(checkpoint_path: str = None, num_classes: int = 4):
+    model = AttU_Net(output_ch=num_classes)
+    if checkpoint_path is not None:
+        model.load_state_dict(torch.load(checkpoint_path))
+    return model
+
+def get_r2attunet(checkpoint_path: str = None, num_classes: int = 4):
+    model = R2AttU_Net(output_ch=num_classes)
+    if checkpoint_path is not None:
+        model.load_state_dict(torch.load(checkpoint_path))
+    return model
+

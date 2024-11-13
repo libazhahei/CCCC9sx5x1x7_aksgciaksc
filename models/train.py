@@ -11,7 +11,6 @@ from torch.utils.data import DataLoader
 from utilis.preprocessing import get_test_preprocessing, get_valid_preprocessing
 import segmentation_models_pytorch.utils as smp_utils
 import pandas as pd
-
 def main(args):
     coco = COCO(f"{args.data_dir}/annotations.json")
     train_ids, val_ids, _ = seprate_train_val_test(coco, test_size=0.2, val_size=0.2, random_state=42)
@@ -67,7 +66,7 @@ def main(args):
         valid_logs_list.append(valid_logs)
         if best_iou_score < valid_logs['MultiClassIoU']:
             best_iou_score = valid_logs['MultiClassIoU']
-            torch.save(model, f'./{args.model_dir}/{args.model_version}/{args.model_name}_best_model.pth')
+            torch.save(model.state_dict(), f'./{args.model_dir}/{args.model_version}/{args.model_name}_best_model.pth')
             print('Model saved!')
             not_best = 0
         else:
@@ -75,7 +74,7 @@ def main(args):
                 break
             not_best += 1
         if i % args.save_step == 0:
-            torch.save(model, f'./{args.model_dir}/{args.model_version}/{args.model_name}_epoch_{i}.pth')
+            torch.save(model.state_dict(), f'./{args.model_dir}/{args.model_version}/{args.model_name}_epoch_{i}.pth')
             
     pd.DataFrame(train_logs_list).to_csv(f'./{args.model_dir}/{args.model_version}/{args.model_name}_train_logs.csv', index=False)
     pd.DataFrame(valid_logs_list).to_csv(f'./{args.model_dir}/{args.model_version}/{args.model_name}_valid_logs.csv', index=False)
