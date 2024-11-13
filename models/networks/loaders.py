@@ -1,6 +1,8 @@
+from arrow import get
 import torch
 import torchvision
 from typing import Callable
+import importlib
 MODEL_LIST = [
     "deeplabv3_baseline",
     "deeplabv3_sp",
@@ -42,22 +44,21 @@ class ModelSelector:
             else:
                 return torch.load(checkpoint_path)
         elif "sp" in model_name:
-            from deeplab.dl_sp import CustomizedDeeplabv3plus
+            # from deeplab.dl_sp import get_model
+            module = importlib.import_module("deeplab.dl_sp")
+            cls = getattr(module, "get_model")
+            return cls(checkpoint_path, self.num_classes)
         elif "mrb" in model_name:
-            from deeplab.dl_mrb import CustomizedDeeplabv3plus
+            module = importlib.import_module("deeplab.dl_sp")
+            cls = getattr(module, "get_model")
+            return cls(checkpoint_path, self.num_classes)
         elif "all" in model_name:
-            from deeplab.dl_all import CustomizedDeeplabv3plus
+            module = importlib.import_module("deeplab.dl_sp")
+            cls = getattr(module, "get_model")
+            return cls(checkpoint_path, self.num_classes)
         else:
             raise ValueError(f"Model {model_name} not found in the list of available models")
-        if checkpoint_path is None:
-            return CustomizedDeeplabv3plus(
-                encoder_name='resnet101', 
-                encoder_weights=None, 
-                classes=self.num_classes, 
-                activation='softmax2d',
-            )
-        else:
-            return torch.load(checkpoint_path)
+        # return get_model(checkpoint_path, self.num_classes)
     
     def _load_maskrcnn(self, model_name: str, checkpoint_path: str):
         from torchvision.models.detection import maskrcnn_resnet50_fpn_v2
@@ -101,3 +102,15 @@ def maskrcnn_prediction(pred: torch.Tensor)-> torch.Tensor:
     #         target_masks[cat] = torch.zeros_like(pred['masks'][0], dtype=torch.float32)
 
     return pred_masks, target_masks
+
+def import_necessary(model_name):
+    if "deeplabv3" in model_name:
+        from segmentation_models_pytorch import DeepLabV3Plus
+    elif "sp" in model_name:
+        from .deeplab.dl_sp import get_model, CustomizedDeeplabv3plus
+    elif "mrb" in model_name:
+        from .deeplab.dl_mrb import get_model, CustomizedDeeplabv3plus
+    elif "all" in model_name:
+        from .deeplab.dl_all import get_model, CustomizedDeeplabv3plus
+    else:
+        raise ValueError(f"Model {model_name} not found in the list of available models")

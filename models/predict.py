@@ -1,7 +1,7 @@
 import argparse
 import os
 import torch
-from networks.loaders import ModelSelector
+from networks.loaders import ModelSelector, import_necessary
 from utilis.epochs import  ValidEpoch
 from utilis.metrics import MultiClassIoU, MultiClassF1Score, MultiClassPrecision, MultiClassRecall
 from utilis.dataset import TurtlesDataset, seprate_train_val_test
@@ -11,6 +11,7 @@ from utilis.preprocessing import get_test_preprocessing
 from utilis.loss import MultiClassCombinedLoss
 import pandas as pd
 def main(args):
+    import_necessary(args.model_name)
     coco = COCO(f"{args.data_dir}/annotations.json")
     _, _, test_ids = seprate_train_val_test(coco, test_size=0.2, val_size=0.2, random_state=42)
     test_dataset = TurtlesDataset(coco, test_ids, resize=(args.size, args.size), dataset_path=args.data_dir, transform=get_test_preprocessing())
@@ -55,10 +56,11 @@ def main(args):
     test_logs = test_epoch.run(test_loader)
     for key, value in test_logs.items():
         print(f"{key}: {value}")
+    test_logs_df = pd.DataFrame(test_logs, index=[0])
     if args.model_version == -1:
-        pd.DataFrame(test_logs).to_csv(f"{args.model_dir}/{args.model_name}_test_metrics.csv", index=False)
+        test_logs_df.to_csv(f"{args.model_dir}/{args.model_name}_test_metrics.csv", index=False)
     else:
-        pd.DataFrame(test_logs).to_csv(f"{args.model_dir}/{args.model_version}/{args.model_name}_test_metrics.csv", index=False)
+        test_logs_df.to_csv(f"{args.model_dir}/{args.model_version}/{args.model_name}_test_metrics.csv", index=False)
 
     pass 
 if __name__ == "__main__":

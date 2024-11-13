@@ -309,3 +309,13 @@ class CustomizedDeeplabv3plus(smp.DeepLabV3Plus):
 #     classes=4, 
 #     activation='softmax2d',
 # ))
+def get_model(checkpoint_path=None, num_classes=4):
+    model = CustomizedDeeplabv3plus(
+        encoder_name='resnet101', 
+        encoder_weights='imagenet', 
+        classes=num_classes, 
+        activation='softmax2d',
+    )
+    if checkpoint_path is not None:
+        model.load_state_dict(torch.load(checkpoint_path))
+    return model
