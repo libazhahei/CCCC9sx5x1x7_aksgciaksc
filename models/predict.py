@@ -6,13 +6,14 @@ from utilis.epochs import  ValidEpoch
 from utilis.metrics import MultiClassIoU, MultiClassF1Score, MultiClassPrecision, MultiClassRecall
 from utilis.dataset import TurtlesDataset, seprate_train_val_test
 from pycocotools.coco import COCO
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader 
+from utilis.preprocessing import get_test_preprocessing
 from utilis.loss import MultiClassCombinedLoss
 import pandas as pd
 def main(args):
     coco = COCO(f"{args.data_dir}/annotations.json")
     _, _, test_ids = seprate_train_val_test(coco, test_size=0.2, val_size=0.2, random_state=42)
-    test_dataset = TurtlesDataset(coco, test_ids, resize=(args.size, args.size), dataset_path=args.data_dir)
+    test_dataset = TurtlesDataset(coco, test_ids, resize=(args.size, args.size), dataset_path=args.data_dir, transform=get_test_preprocessing())
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
     selector = ModelSelector(args.num_classes, pretrained=True)
     model, get_predition = selector.select_model(args.model_name, checkpoint_path=args.checkpoint)
@@ -54,7 +55,10 @@ def main(args):
     test_logs = test_epoch.run(test_loader)
     for key, value in test_logs.items():
         print(f"{key}: {value}")
-    pd.DataFrame(test_logs).to_csv(f"{args.model_dir}/{args.model_version}/{args.model_name}_test_metrics.csv", index=False)
+    if args.model_version == -1:
+        pd.DataFrame(test_logs).to_csv(f"{args.model_dir}/{args.model_name}_test_metrics.csv", index=False)
+    else:
+        pd.DataFrame(test_logs).to_csv(f"{args.model_dir}/{args.model_version}/{args.model_name}_test_metrics.csv", index=False)
 
     pass 
 if __name__ == "__main__":
