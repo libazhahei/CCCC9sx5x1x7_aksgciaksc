@@ -43,6 +43,37 @@ def visualize_image_with_mask(image, mask, pred=None):
 def store_image_with_mask(image, mask, pred, path, model_name, img_id):
     image = image.permute(1, 2, 0).cpu().numpy().astype(np.float32)
     image = (image - image.min()) / (image.max() - image.min())  # Normalize to [0, 1]
+    image = cv.resize(image, (2000, 1333))
+    mask = cv.resize(mask, (2000, 1333))
+    pred = cv.resize(pred, (2000, 1333))
     plt.imsave(f"{path}/{model_name}_image_{img_id}.jpg", image)
     plt.imsave(f"{path}/{model_name}_mask_{img_id}.jpg", mask)
     plt.imsave(f"{path}/{model_name}_pred_{img_id}.jpg", pred)
+
+def mega_draw(images, masks, preds, model_names):
+    # Draw a graph of 3 rows, 4 cols, each col is a model, rows are img, mask, and pred prepsective;y
+    # Hiden the title of each image, put the model name at the top of each col
+    # On the left hand side, put the image, in the middle put the mask, on the right put the prediction
+    # the border and the padding between the images should be small
+    fig, axs = plt.subplots(4, 4, figsize=(20, 12))
+    for i, (image, mask, pred, model_name) in enumerate(zip(images, masks, preds, model_names)):
+        image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+        diff = mask_diff(mask, pred)
+        axs[0, i].imshow(image)
+        axs[1, i].imshow(mask)
+        axs[2, i].imshow(pred)
+        axs[0, i].set_title(model_name)
+        axs[3, i].imshow(diff)
+    for ax in axs.flat:
+        ax.label_outer()
+        ax.axis("off")
+    
+def mask_diff(masks, pred):
+    # compare the difference between the mask and the prediction
+    # Any difference between the mask and the prediction should be colored with white
+    # The indifference should be colored with black
+    diff = masks - pred
+    diff[diff != 0] = 255
+    return diff
+
+    

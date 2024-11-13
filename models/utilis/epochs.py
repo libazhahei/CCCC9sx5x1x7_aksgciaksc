@@ -49,7 +49,7 @@ class ValidEpoch(smp_utils.train.ValidEpoch):
 
     def batch_update(self, x, y):
         with torch.no_grad():
-            y_pred = self.get_prediction(self.model(x))
+            y_pred = self.get_prediction(self.model.forward(x))
             loss = self.loss(y_pred, y)
         return loss, y_pred
     

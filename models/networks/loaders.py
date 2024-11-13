@@ -1,8 +1,6 @@
-from arrow import get
 import torch
 import torchvision
 from typing import Callable
-import importlib
 MODEL_LIST = [
     "deeplabv3_baseline",
     "deeplabv3_sp",

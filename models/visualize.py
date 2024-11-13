@@ -2,21 +2,15 @@ import argparse
 import os
 import torch
 from networks.loaders import ModelSelector, import_necessary
-from utilis.epochs import  ValidEpoch
-from utilis.metrics import MultiClassIoU, MultiClassF1Score, MultiClassPrecision, MultiClassRecall
-from utilis.dataset import TurtlesDataset, seprate_train_val_test
+from utilis.dataset import TurtlesDataset
 from pycocotools.coco import COCO
-from torch.utils.data import DataLoader 
-from utilis.preprocessing import get_test_preprocessing
-from utilis.loss import MultiClassCombinedLoss
-import pandas as pd
+from utilis.preprocessing import get_valid_preprocessing
 import numpy as np
 from utilis.visualization import store_image_with_mask
 def main(args):
     import_necessary(args.model_name)
     coco = COCO(f"{args.data_dir}/annotations.json")
-    _, _, test_ids = seprate_train_val_test(coco, test_size=0.2, val_size=0.2, random_state=args.seed)
-    test_dataset = TurtlesDataset(coco, test_ids, resize=(args.size, args.size), dataset_path=args.data_dir, transform=get_test_preprocessing())
+    test_dataset = TurtlesDataset(coco, coco.getImgIds(), resize=(args.size, args.size), dataset_path=args.data_dir, transform=get_valid_preprocessing())
     selector = ModelSelector(args.num_classes, pretrained=True)
     model, get_predition = selector.select_model(args.model_name, checkpoint_path=args.checkpoint)
     if model is None:
@@ -27,8 +21,10 @@ def main(args):
         image = image.unsqueeze(0)
         mask = mask.unsqueeze(0)
         image = image.to(device)
+        model.to(device)
+        model.eval()
         with torch.no_grad():
-            pred_mask = get_predition(model(image))
+            pred_mask = get_predition(model.forward(image))
             pred_mask = torch.argmax(pred_mask, dim=1)
             pred_mask = pred_mask.cpu().numpy()
             pred_mask = np.squeeze(pred_mask)
@@ -36,15 +32,16 @@ def main(args):
             mask = np.squeeze(mask)
             store_image_with_mask(image[0], mask, pred_mask, args.img_dir, args.model_name, args.img_id)
         return
+    np.random.seed(args.seed)
     for _ in range(args.n_img):
-        np.random.seed(args.seed)
         random_id=np.random.randint(0, len(test_dataset))
         image, mask = test_dataset[random_id]
         image = image.unsqueeze(0)
         mask = mask.unsqueeze(0)
         image = image.to(device)
+        model.eval()
         with torch.no_grad():
-            pred_mask = get_predition(model(image))
+            pred_mask = get_predition(model.forward(image))
             pred_mask = torch.argmax(pred_mask, dim=1)
             pred_mask = pred_mask.cpu().numpy()
             pred_mask = np.squeeze(pred_mask)

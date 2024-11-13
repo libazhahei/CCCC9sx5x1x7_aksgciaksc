@@ -62,7 +62,7 @@ python visualization.py --data_dir /content/dataset/turtles-data/data --model_na
 ### Training Parameters
 - `--model_dir`: Directory to save the models (default: `models`).
 - `--size`: Size to resize the images (default: `1024`).
-- `--model_version`: Version of the model (default: `-1`).
+- `--model_version`: Version of the model (default: `-1`). 
 - `--batch_size`: Batch size for training (default: `8`).
 - `--num_classes`: Number of classes (default: `4`).
 - `--epochs`: Number of epochs to train (default: `10`).
@@ -89,6 +89,7 @@ python visualization.py --data_dir /content/dataset/turtles-data/data --model_na
 - `--seed`: Random seed (default: `42`).
 
 By following these instructions, you can effectively train, predict, and visualize using the provided scripts. Make sure to adjust the parameters as needed for your specific use case.
+
 ## Supported Models
 
 The following models are supported for the turtle segmentation task:
@@ -112,10 +113,6 @@ The following is an example of the file structure for the project:
 project_root/
 │
 ├── data/
-│   ├── annotations.json
-│   ├── train/
-│   ├── val/
-│   └── test/
 │
 ├── models/
 │   ├── model_version_1/
@@ -141,7 +138,8 @@ project_root/
 │   ├── loss.py
 │   ├── metrics.py
 │   ├── dataset.py
-│   └── preprocessing.py
+│   ├── preprocessing.py
+│   └── visualization.py
 └── README.md
 ```
 
@@ -152,5 +150,5 @@ project_root/
 - `predict.py`: Script for predicting using the trained model.
 - `visualization.py`: Script for visualizing the predictions.
 - `networks/`: Contains the model loaders and other network-related scripts.
-- `utilis/`: Contains utility scripts for epochs, loss functions, metrics, dataset handling, and preprocessing.
+- `utilis/`: Contains utility scripts for epochs, loss functions, metrics, dataset handling, preprocessing, and visualization.
 - `README.md`: The user manual and documentation.

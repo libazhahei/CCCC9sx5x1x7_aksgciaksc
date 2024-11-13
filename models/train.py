@@ -66,7 +66,7 @@ def main(args):
         valid_logs_list.append(valid_logs)
         if best_iou_score < valid_logs['MultiClassIoU']:
             best_iou_score = valid_logs['MultiClassIoU']
-            torch.save(model.state_dict(), f'./{args.model_dir}/{args.model_version}/{args.model_name}_best_model.pth')
+            torch.save(model.state_dict(), f'./{args.model_dir}/{args.model_name}_{args.model_version}/{args.model_name}_best_model.pth')
             print('Model saved!')
             not_best = 0
         else:
@@ -74,11 +74,11 @@ def main(args):
                 break
             not_best += 1
         if i % args.save_step == 0:
-            torch.save(model.state_dict(), f'./{args.model_dir}/{args.model_version}/{args.model_name}_epoch_{i}.pth')
+            torch.save(model.state_dict(), f'./{args.model_dir}/{args.model_name}_{args.model_version}/{args.model_name}_epoch_{i}.pth')
             
-    pd.DataFrame(train_logs_list).to_csv(f'./{args.model_dir}/{args.model_version}/{args.model_name}_train_logs.csv', index=False)
-    pd.DataFrame(valid_logs_list).to_csv(f'./{args.model_dir}/{args.model_version}/{args.model_name}_valid_logs.csv', index=False)
-    torch.save(model, f'./{args.model_dir}/{args.model_version}/{args.model_name}_last_model.pth')
+    pd.DataFrame(train_logs_list).to_csv(f'./{args.model_dir}/{args.model_name}_{args.model_version}/{args.model_name}_train_logs.csv', index=False)
+    pd.DataFrame(valid_logs_list).to_csv(f'./{args.model_dir}/{args.model_name}_{args.model_version}/{args.model_name}_valid_logs.csv', index=False)
+    torch.save(model.state_dict(), f'./{args.model_dir}/{args.model_name}_{args.model_version}/{args.model_name}_last_model.pth')
 
 if __name__ == "__main__":
     arg = argparse.ArgumentParser()
