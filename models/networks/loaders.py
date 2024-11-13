@@ -24,16 +24,16 @@ class ModelSelector:
         if "deeplabv3" in model_name:
             return self._load_deeplab_models(model_name, checkpoint_path), lambda x: x
         elif "maskrcnn" in model_name:
-            return self._load_maskrcnn(model_name, checkpoint_path), lambda x: x['masks']
+            return self._load_maskrcnn(model_name, checkpoint_path), maskrcnn_prediction
         elif "unet" in model_name:
             return self._load_unet(model_name, checkpoint_path), lambda x: x
         pass 
 
     def _load_deeplab_models(self, model_name: str, checkpoint_path: str):
         if "baseline" in model_name:
-            import segmentation_models_pytorch as smp
+            from segmentation_models_pytorch import DeepLabV3Plus
             if checkpoint_path is None:
-                return smp.DeepLabV3Plus(
+                return DeepLabV3Plus(
                     encoder_name='resnet101', 
                     encoder_weights=None, 
                     classes=4, 
@@ -73,3 +73,31 @@ class ModelSelector:
     def _load_unet(self, model_name: str, checkpoint_path: str):
         pass
 
+def maskrcnn_prediction(pred: torch.Tensor)-> torch.Tensor:
+    pred_masks = {1: [], 2: [], 3: []}
+    target_masks = {1: [], 2: [], 3: []}
+    # category_labels_rev = {
+    #     1: "turtle",
+    #     2: "flipper",
+    #     3: "head",
+    # }
+
+    for i, label in enumerate(pred['labels']):
+        cat = label.item()
+        if cat in pred_masks:
+            pred_masks[cat].append(pred['masks'][i] > 0.5)
+    
+
+    for cat, masks in pred_masks.items():
+        if masks:
+            pred_masks[cat] = torch.stack(masks).any(dim=0).float()
+        else:
+            pred_masks[cat] = torch.zeros_like(pred['masks'][0], dtype=torch.float32)
+
+    # for cat, masks in target_masks.items():
+    #     if masks:
+    #         target_masks[cat] = torch.stack(masks).any(dim=0).float()
+    #     else:
+    #         target_masks[cat] = torch.zeros_like(pred['masks'][0], dtype=torch.float32)
+
+    return pred_masks, target_masks

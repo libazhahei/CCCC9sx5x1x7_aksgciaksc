@@ -25,7 +25,7 @@ def main(args):
     optimizer = torch.optim.Adam([
         dict(params=model.parameters(), lr=0.0001),
     ])
-    loss = MultiClassCombinedLoss(num_classes=args.num_classes, alpha=args.alpha, beta=args.beta, gamma=args.gamma, class_weights=None)
+    loss = MultiClassCombinedLoss(num_classes=args.num_classes, alpha=args.alpha, beta=args.beta, gamma=args.gamma, class_weights=torch.tensor([0.02, 0.21, 0.63, 1.0]))
     lr_scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.0001, max_lr=0.001, step_size_up=1000, cycle_momentum=False)
     metrics = [
         MultiClassIoU(args.num_classes),

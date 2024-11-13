@@ -7,6 +7,7 @@ from utilis.metrics import MultiClassIoU, MultiClassF1Score, MultiClassPrecision
 from utilis.dataset import TurtlesDataset, seprate_train_val_test
 from pycocotools.coco import COCO
 from torch.utils.data import DataLoader
+from utilis.loss import MultiClassCombinedLoss
 import pandas as pd
 def main(args):
     coco = COCO(f"{args.data_dir}/annotations.json")
@@ -40,9 +41,10 @@ def main(args):
         MultiClassRecall(4, single_calss_id=(3, 'head')),
     ]
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    loss = MultiClassCombinedLoss(num_classes=args.num_classes, alpha=args.alpha, beta=args.beta, gamma=args.gamma, class_weights=torch.tensor([0.02, 0.21, 0.63, 1.0]))
     test_epoch = ValidEpoch(
         model=model,
-        loss=None,
+        loss=loss,
         metrics=test_metrics,
         device=device,
         verbose=True,
@@ -64,6 +66,10 @@ if __name__ == "__main__":
     arg.add_argument("--batch_size", type=int, default=8)
     arg.add_argument("--num_classes", type=int, default=4)
     arg.add_argument("--checkpoint", type=str, default=None)
+    arg.add_argument("--alpha", type=float, default=0.2)
+    arg.add_argument("--beta", type=float, default=0.3)
+    arg.add_argument("--gamma", type=float, default=0.5)
+    arg.add_argument("--focal_gamma", type=float, default=2.0)
     args = arg.parse_args()
     if not os.path.exists(args.data_dir):
         raise ValueError(f"Data directory {args.data_dir} does not exist")
