@@ -103,3 +103,10 @@ class UNet(nn.Module):
         x = self.up4(x, x1)
         logits = self.outc(x)
         return logits
+    
+
+def get_unet(path, num_classes=4):
+    model = UNet(3, num_classes)
+    if path is not None:
+        model.load_state_dict(torch.load(path))
+    return model

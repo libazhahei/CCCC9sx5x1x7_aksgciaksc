@@ -4,10 +4,23 @@ This manual provides detailed instructions on how to train, predict, and visuali
 
 ## Table of Contents
 1. [Training](#training)
+    - [Command](#command)
+    - [Example](#example)
 2. [Prediction](#prediction)
+    - [Command](#command-1)
+    - [Example](#example-1)
 3. [Visualization](#visualization)
+    - [Command](#command-2)
+    - [Example](#example-2)
 4. [Parameters](#parameters)
+    - [Common Parameters](#common-parameters)
+    - [Training Parameters](#training-parameters)
+    - [Prediction Parameters](#prediction-parameters)
+    - [Visualization Parameters](#visualization-parameters)
 5. [Supported Models](#supported-models)
+    - [Mask-Rcnn Support](#mask-rcnn-support)
+        - [Steps to Use the Notebook](#steps-to-use-the-notebook)
+        - [Example Usage](#example-usage)
 6. [File Structure](#file-structure)
 
 ## Training
@@ -98,13 +111,30 @@ The following models are supported for the turtle segmentation task:
 - `deeplabv3_sp`
 - `deeplabv3_mrb`
 - `deeplabv3_all`
-- `maskrcnn`
 - `unet`
 - `res_unet++`
 - `attention_unet`
 
 Each model can be selected using the `--model_name` parameter in the scripts.
 
+### Mask-Rcnn Support
+Due to significant model differences, train and evaluate `mask-rcnn` using the [Notebook](mask_rcnn.ipynb).
+
+To train, evaluate, and test the `maskrcnn` model, use the provided Jupyter Notebook `mask_rcnn.ipynb`. This notebook contains all the necessary steps, including data preparation, model adjustments, training, validation, and testing.
+
+#### Steps to Use the Notebook
+
+1. **Data Preparation**: Load and preprocess the dataset, including splitting it into training, validation, and test sets.
+2. **Model Adjustments**: Initialize the Mask R-CNN model with a ResNet50 backbone and modify the prediction heads to suit the task.
+3. **Training**: Train the model using the training set, with options for early stopping and learning rate scheduling.
+4. **Validation**: Validate the model after each epoch to monitor performance and save the best model based on validation loss.
+5. **Testing**: Evaluate the final model on the test set and calculate metrics such as IoU, precision, recall, and F1-score.
+
+#### Example Usage
+
+Open the `mask_rcnn.ipynb` notebook in Jupyter or Google Colab and follow the instructions provided in each cell. Adjust the parameters as needed for your specific use case.
+
+By following these steps, you can effectively train, evaluate, and test the `maskrcnn` model for the turtle segmentation task.
 ## File Structure
 
 The following is an example of the file structure for the project:

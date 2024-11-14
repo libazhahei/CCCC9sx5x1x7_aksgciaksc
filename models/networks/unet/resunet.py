@@ -189,7 +189,8 @@ class Attention_ResUNet(nn.Module):
         return output
 
 
-def get_res_unet(path):
-    model = Attention_ResUNet()
-    model.load_state_dict(torch.load(path))
+def get_res_unet(path, num_classes=4):
+    model = Attention_ResUNet(num_classes=num_classes, input_channels=3)
+    if path is not None:
+        model.load_state_dict(torch.load(path))
     return model

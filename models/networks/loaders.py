@@ -6,7 +6,6 @@ MODEL_LIST = [
     "deeplabv3_sp",
     "deeplabv3_mrb",
     "deeplabv3_all",
-    "maskrcnn",
     "unet",
     "res_unet++",
     "attention_unet",
@@ -66,13 +65,15 @@ class ModelSelector:
         return model
     
     def _load_unet(self, model_name: str, checkpoint_path: str):
-        from .unet.attention import get_unet, get_r2unet, get_attunet, get_r2attunet
+        from .unet.resunet import get_res_unet
+        from .unet.unet import get_unet
+        from .unet.attention import get_attunet
         if "unet" in model_name:
             return get_unet(checkpoint_path, self.num_classes)
         elif "attention" in model_name:
             return get_attunet(checkpoint_path, self.num_classes)
         elif "res_unet++" in model_name:
-            return get_r2attunet(checkpoint_path, self.num_classes)
+            return get_res_unet(checkpoint_path, self.num_classes)
 
 
 def import_necessary(model_name):
