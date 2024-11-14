@@ -8,8 +8,9 @@ from utilis.metrics import MultiClassIoU
 from utilis.dataset import TurtlesDataset, seprate_train_val_test
 from pycocotools.coco import COCO
 from torch.utils.data import DataLoader
-from utilis.preprocessing import get_test_preprocessing, get_valid_preprocessing
+from utilis.preprocessing import get_valid_preprocessing
 import segmentation_models_pytorch.utils as smp_utils
+
 import pandas as pd
 def main(args):
     coco = COCO(f"{args.data_dir}/annotations.json")
