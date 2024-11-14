@@ -113,7 +113,7 @@ if __name__ == "__main__":
         args.model_version = len(os.listdir(args.model_dir)) + 1
     if args.resume and args.checkpoint is None:
         raise ValueError("Checkpoint path is required for resuming training")
-    if not os.path.exists(f"{args.model_dir}/{args.model_version}"):
-        os.makedirs(f"{args.model_dir}/{args.model_version}")
+    if not os.path.exists(f"{args.model_dir}/{args.model_name}_{args.model_version}"):
+        os.makedirs(f"{args.model_dir}/{args.model_name}_{args.model_version}")
     main(args)
 
