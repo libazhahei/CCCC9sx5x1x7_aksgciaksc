@@ -15,8 +15,8 @@ import pandas as pd
 def main(args):
     coco = COCO(f"{args.data_dir}/annotations.json")
     train_ids, val_ids, _ = seprate_train_val_test(coco, test_size=0.2, val_size=0.2, random_state=42)
-    train_dataset = TurtlesDataset(coco, train_ids, resize=(args.size, args.size), transform=get_valid_preprocessing())
-    val_dataset = TurtlesDataset(coco, val_ids, resize=(args.size, args.size), transform=get_valid_preprocessing())
+    train_dataset = TurtlesDataset(coco, train_ids, resize=(args.size, args.size), transform=get_valid_preprocessing(), dataset_path=args.data_dir)
+    val_dataset = TurtlesDataset(coco, val_ids, resize=(args.size, args.size), transform=get_valid_preprocessing(), dataset_path=args.data_dir)
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
     selector = ModelSelector(args.num_classes, pretrained=args.resume)
