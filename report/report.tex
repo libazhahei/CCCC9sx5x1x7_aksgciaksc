@@ -63,7 +63,7 @@ One significant modification in the U-Net architecture is that the upsampling pa
 One significant modification in the U-Net architecture is that the upsampling part contains a huge quantities of feature channels, empowering the higher resolution layers to capture context information. As a result, the expansive path is approximately symmetric to the contracting path, structuring a u-shaped network. Besides, the U-Net architecture only uses the valid part of each convolution, which means that it does not contain any fully connected layers. The scheme provides an overlap-tile strategy for seamless segmentation of any large images
 
 \subsection{DeeplabV3}
-Semantic segmentation, aimed at assigning semantic labels to every pixel in an image, is one of the fundamental topics in computer vision [14]. The encoder-decoder network has been successfully applied to numerous computer vision tasks, including object detection [12] and semantic segmentation [11]. Typically, the encoder-decoder network consists of two components: an encoder module that gradually reduces the feature maps and captures higher-level semantic information, and a decoder module that gradually recovers spatial information. The autoencoder model fully adheres to this concept [15], while U-Net incorporates skip connections between the encoder and decoder to effectively obtain sharper segmentations.
+Semantic segmentation, aimed at assigning semantic labels to every pixel in an image, is one of the fundamental topics in computer vision [14]. The encoder-decoder network has been successfully applied to numerous computer vision tasks, including object detection [12] and semantic segmentation [11]. Typically, the encoder-decoder network consists of two components: an encoder module that gradually reduces the feature maps and captures higher-level semantic information, and a decoder module that gradually recovers spatial information. The autoencoder model fully adheres to this concept [15], while U-Net incorporates skip connections between three encoders and decoders to effectively obtain sharper segmentation.
 
 \subsubsection{Depthwise Separable Convolution}
 Depthwise separable convolution or group convolution serves as a powerful operation to reduce both computation costs and the number of parameters while maintaining comparable performance [19]. This operation has been adopted in many recent neural network designs, such as flattened convolutional neural networks and the Xception model[17], showing improvements in both accuracy and speed for the task of semantic segmentation.
@@ -180,7 +180,7 @@ During this process, each position in the output tensor can establish relationsh
     \caption{Schematic illustration of the Strip Pooling module [15]}
 \end{figure}
 \subsection{Mask R-CNN}
-Mask R-CNN was chosen due to its effectiveness in mask prediction and its novel application of instance segmentation techniques to semantic segmentation tasks. Mask R-CNN achieves state-of-the-art performance in instance segmentation, making it a strong candidate for tasks requiring accurate mask localization. While models like U-Net [28] and DeepLabv3 [29] are often used directly for semantic segmentation, applying Mask R-CNN leverages its robust instance segmentation capabilities creatively. The use of a multi-task loss function [27] also enhances mask prediction accuracy by allowing better localization. 
+Mask R-CNN was chosen due to its effectiveness in mask prediction and its novel application of instance segmentation techniques to instance segmentation tasks. Mask R-CNN achieves state-of-the-art performance in instance segmentation, making it a strong candidate for tasks requiring accurate mask localization. While models like U-Net [28] and DeepLabv3 [29] are often used directly for semantic segmentation, applying Mask R-CNN leverages its robust instance segmentation capabilities creatively. The use of a multi-task loss function [27] also enhances mask prediction accuracy by allowing better localization. 
 The Mask R-CNN model uses ResNet50 with a Feature Pyramid Network (FPN) [30] as its backbone, initialized with pre-trained weights. The FastRCNNPredictor and MaskRCNNPredictor heads are modified to adapt four output classes: background, carapace, flipper, and head. Experimental dropout is applied after the linear layers in the box prediction head to prevent overfitting, as the model tends to converge quickly
 \begin{figure}[h]
     \centering
@@ -246,66 +246,44 @@ Mask R-CNN are designed with a larger receptive field, empowering them to learn 
 
 \begin{figure}[!t]
     \centering
-    % First row: ResUNet++
-    \begin{subfigure}[t]{0.15\textwidth}
+    \begin{subfigure}[t]{0.23\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{fig1.png}
-        \caption{Image (ResUNet++)}
+        \includegraphics[width=\textwidth]{deeplabv3_all_image_222.jpg}
+        \caption{Image}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[t]{0.15\textwidth}
+    \begin{subfigure}[t]{0.23\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{fig1.png}
+        \includegraphics[width=\textwidth]{deeplabv3_all_mask_222.jpg}
+        \caption{True Mask}
+    \end{subfigure}
+    \vspace{0.5em}
+    \begin{subfigure}[t]{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{deeplabv3_all_pred_222.jpg}
+        \caption{Pred (DeepLabV3+ SP + MR)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{pred_mask.png}
         \caption{Pred (ResUNet++)}
     \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.15\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{fig1.png}
-        \caption{True Mask (ResUNet++)}
-    \end{subfigure}
 
-    % Second row: DeepLabV3
     \vspace{0.5em}
-    \begin{subfigure}[t]{0.15\textwidth}
+    \begin{subfigure}[t]{0.23\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{fig1.png}
-        \caption{Image (DeepLabV3)}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.15\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{fig1.png}
-        \caption{Pred (DeepLabV3)}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.15\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{fig1.png}
-        \caption{True Mask (DeepLabV3)}
-    \end{subfigure}
-
-    % Third row: Mask R-CNN
-    \vspace{0.5em}
-    \begin{subfigure}[t]{0.15\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{fig1.png}
-        \caption{Image (Mask R-CNN)}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.15\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{fig1.png}
+        \includegraphics[width=\textwidth]{rcnn_pred.png}
         \caption{Pred (Mask R-CNN)}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[t]{0.15\textwidth}
+    \begin{subfigure}[t]{0.23\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{fig1.png}
+        \includegraphics[width=\textwidth]{rcnn_true.png}
         \caption{True Mask (Mask R-CNN)}
     \end{subfigure}
 
-    \caption{Example segmentation result of three models. (From top to bottom: ResUNet++, DeepLabV3, Mask R-CNN)}
+    \caption{Example segmentation result of three models. }
 \end{figure}
 
 \begin{table}[h]

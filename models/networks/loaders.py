@@ -85,5 +85,9 @@ def import_necessary(model_name):
         from .deeplab.dl_mrb import get_model, CustomizedDeeplabv3plus
     elif "all" in model_name:
         from .deeplab.dl_all import get_model, CustomizedDeeplabv3plus
+    elif "unet" in model_name:
+        from .unet.resunet import get_res_unet
+        from .unet.unet import get_unet
+        from .unet.attention import get_attunet
     else:
         raise ValueError(f"Model {model_name} not found in the list of available models")
